@@ -6,7 +6,7 @@ import os
 import time
 
 s3 = boto3.client('s3')
-producer = KafkaProducer(bootstrap_servers=os.environ.get('KAFKA_HOST', 'localhost:9092'))
+producer = KafkaProducer(bootstrap_servers=os.environ.get('KAFKA_HOST', 'localhost:9092'),max_request_size=1)
 topic = os.environ.get('KAFKA_TOPIC', 'DASHBASE')
 print('Loading function host:{} topic:{}', producer, topic)
 
@@ -51,6 +51,7 @@ def handler(event, context):
             except zlib.error:
                 print("Content couldn't be ungzipped, assuming plain text")
         lines = data.splitlines()
+        print("=>   split time: {}s".format(time.time() - start_time))
         try:
             for line in lines:
                 producer.send(topic, line)
