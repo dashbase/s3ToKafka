@@ -1,3 +1,4 @@
 boto3
-kafka-python
+pykafka
+gevent
 smart_open

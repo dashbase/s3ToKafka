@@ -1,14 +1,15 @@
 from __future__ import print_function
-from kafka import KafkaProducer
+from pykafka import KafkaClient
 import boto3
 import zlib
 import os
 import time
 
 s3 = boto3.client('s3')
-producer = KafkaProducer(bootstrap_servers=os.environ.get('KAFKA_HOST', 'localhost:9092'))
-topic = os.environ.get('KAFKA_TOPIC', 'DASHBASE')
-print('Loading function host:{} topic:{}', producer, topic)
+host = os.environ.get('KAFKA_HOST', 'localhost:9092')
+client = KafkaClient(hosts=host)
+topic = client.topics[os.environ.get('KAFKA_TOPIC', 'DASHBASE')]
+print('Loading function host:{} topic:{}', host, topic)
 
 
 class ReadOnce(object):
@@ -53,9 +54,9 @@ def handler(event, context):
         lines = data.splitlines()
         print("=>   split time: {}s".format(time.time() - start_time))
         try:
-            for line in lines:
-                producer.send(topic, line)
-            producer.flush()
+            with topic.get_producer(min_queued_messages=1) as producer:
+                for line in lines:
+                    producer.produce(line)
             print("=>   send usage time: {}s".format(time.time() - start_time))
             print("s3 file:{} transfer to kafka successful ".format(key))
 
