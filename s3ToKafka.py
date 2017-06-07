@@ -6,7 +6,7 @@ import os
 import time
 
 s3 = boto3.client('s3')
-producer = KafkaProducer(bootstrap_servers=os.environ.get('KAFKA_HOST', 'localhost:9092'),max_request_size=1)
+producer = KafkaProducer(bootstrap_servers=os.environ.get('KAFKA_HOST', 'localhost:9092'))
 topic = os.environ.get('KAFKA_TOPIC', 'DASHBASE')
 print('Loading function host:{} topic:{}', producer, topic)
 
