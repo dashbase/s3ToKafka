@@ -50,4 +50,5 @@ deployment:
   release:
     branch: release
     commands:
-      - aws s3 cp s3ToKafka.zip s3://${E_BUCKET}/
+      - aws s3 cp s3ToKafka.zip s3://${E_BUCKET}/ --acl bucket-owner-full-control
+      - aws lambda update-function-code --function-name ${E_FUNC} --zip-file s3ToKafka.zip
